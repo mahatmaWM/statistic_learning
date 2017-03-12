@@ -1,0 +1,8 @@
+outlook,temperature,humidity,windy,label
+sunny,hot,high,false,N
+sunny,hot,high,true,N
+overcast,hot,high,false,Y
+rain,mild,high,false,Y
+rain,cool,normal,false,Y
+rain,cool,normal,true,N
+overcast,cool,normal,true,Y
