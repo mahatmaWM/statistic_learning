@@ -5,14 +5,14 @@ import timeit
 
 setup = """
 from sklearn.datasets import load_iris
-from skrvm import RVC
+from rvm import RVC
 
 iris = load_iris()
 
 X = iris.data
 y = iris.target
 
-clf = RVC()
+clf = RVC(verbose=True)
 """
 
 time = timeit.timeit("clf.fit(X, y)", setup=setup, number=10)
