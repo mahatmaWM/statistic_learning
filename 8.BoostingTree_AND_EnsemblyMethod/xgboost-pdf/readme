@@ -1,9 +1,0 @@
-删掉pdf文件
-
-
-官网分析的很清楚 https://xgboost.readthedocs.io/en/latest/model.html
-
-原理简介：使用CART树作为基模型
-
-
-使用例子：https://xgboost.readthedocs.io/en/latest/how_to/param_tuning.html
