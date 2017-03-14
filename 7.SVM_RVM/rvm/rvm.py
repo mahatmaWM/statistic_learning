@@ -5,38 +5,33 @@ from scipy.optimize import minimize
 from scipy.special import expit
 
 from sklearn.base import BaseEstimator, RegressorMixin, ClassifierMixin
-from sklearn.metrics.pairwise import (
-    linear_kernel,
-    rbf_kernel,
-    polynomial_kernel
-)
+from sklearn.metrics.pairwise import linear_kernel, rbf_kernel, polynomial_kernel
 from sklearn.multiclass import OneVsOneClassifier
 from sklearn.utils.validation import check_X_y
 
 
 class BaseRVM(BaseEstimator):
-
-    """Base Relevance Vector Machine class.
-
+    """
+    Base Relevance Vector Machine class.
     Implementation of Mike Tipping's Relevance Vector Machine using the
     scikit-learn API. Add a posterior over weights method and a predict
     in subclass to use for classification or regression.
     """
 
     def __init__(
-        self,
-        kernel='rbf',
-        degree=3,
-        coef1=None,
-        coef0=0.0,
-        n_iter=3000,
-        tol=1e-3,
-        alpha=1e-6,
-        threshold_alpha=1e9,
-        beta=1.e-6,
-        beta_fixed=False,
-        bias_used=True,
-        verbose=False
+            self,
+            kernel='rbf',
+            degree=3,
+            coef1=None,
+            coef0=0.0,
+            n_iter=3000,
+            tol=1e-3,
+            alpha=1e-6,
+            threshold_alpha=1e9,
+            beta=1.e-6,
+            beta_fixed=False,
+            bias_used=True,
+            verbose=False
     ):
         """Copy params to object properties, no validation."""
         self.kernel = kernel
@@ -149,12 +144,11 @@ class BaseRVM(BaseEstimator):
         for i in range(self.n_iter):
             self._posterior()
 
-            self.gamma = 1 - self.alpha_*np.diag(self.sigma_)
-            self.alpha_ = self.gamma/(self.m_ ** 2)
+            self.gamma = 1 - self.alpha_ * np.diag(self.sigma_)
+            self.alpha_ = self.gamma / (self.m_ ** 2)
 
             if not self.beta_fixed:
-                self.beta_ = (n_samples - np.sum(self.gamma))/(
-                    np.sum((y - np.dot(self.phi, self.m_)) ** 2))
+                self.beta_ = (n_samples - np.sum(self.gamma)) / (np.sum((y - np.dot(self.phi, self.m_)) ** 2))
 
             self._prune()
 
@@ -183,11 +177,9 @@ class BaseRVM(BaseEstimator):
 
 
 class RVR(BaseRVM, RegressorMixin):
-
-    """Relevance Vector Machine Regression.
-
-    Implementation of Mike Tipping's Relevance Vector Machine for regression
-    using the scikit-learn API.
+    """
+    Relevance Vector Machine Regression.
+    Implementation of Mike Tipping's Relevance Vector Machine for regression using the scikit-learn API.
     """
 
     def _posterior(self):
@@ -203,18 +195,16 @@ class RVR(BaseRVM, RegressorMixin):
         y = np.dot(phi, self.m_)
 
         if eval_MSE:
-            MSE = (1/self.beta_) + np.dot(phi, np.dot(self.sigma_, phi.T))
+            MSE = (1 / self.beta_) + np.dot(phi, np.dot(self.sigma_, phi.T))
             return y, MSE[:, 0]
         else:
             return y
 
 
 class RVC(BaseRVM, ClassifierMixin):
-
-    """Relevance Vector Machine Classification.
-
-    Implementation of Mike Tipping's Relevance Vector Machine for
-    classification using the scikit-learn API.
+    """
+    Relevance Vector Machine Classification.
+    Implementation of Mike Tipping's Relevance Vector Machine for classification using the scikit-learn API.
     """
 
     def __init__(self, n_iter_posterior=50, **kwargs):
@@ -235,17 +225,16 @@ class RVC(BaseRVM, ClassifierMixin):
 
         y = self._classify(m, phi)
 
-        log_p = -1 * (np.sum(np.log(y[t == 1]), 0) +
-                      np.sum(np.log(1-y[t == 0]), 0))
-        log_p = log_p + 0.5*np.dot(m.T, np.dot(np.diag(alpha), m))
+        log_p = -1 * (np.sum(np.log(y[t == 1]), 0) + np.sum(np.log(1 - y[t == 0]), 0))
+        log_p = log_p + 0.5 * np.dot(m.T, np.dot(np.diag(alpha), m))
 
-        jacobian = np.dot(np.diag(alpha), m) - np.dot(phi.T, (t-y))
+        jacobian = np.dot(np.diag(alpha), m) - np.dot(phi.T, (t - y))
 
         return log_p, jacobian
 
     def _hessian(self, m, alpha, phi, t):
         y = self._classify(m, phi)
-        B = np.diag(y*(1-y))
+        B = np.diag(y * (1 - y))
         return np.diag(alpha) + np.dot(phi.T, np.dot(B, phi))
 
     def _posterior(self):
@@ -262,9 +251,7 @@ class RVC(BaseRVM, ClassifierMixin):
         )
 
         self.m_ = result.x
-        self.sigma_ = np.linalg.inv(
-            self._hessian(self.m_, self.alpha_, self.phi, self.t)
-        )
+        self.sigma_ = np.linalg.inv(self._hessian(self.m_, self.alpha_, self.phi, self.t))
 
     def fit(self, X, y):
         """Check target values and fit model."""
@@ -287,7 +274,7 @@ class RVC(BaseRVM, ClassifierMixin):
         """Return an array of class probabilities."""
         phi = self._apply_kernel(X, self.relevance_)
         y = self._classify(self.m_, phi)
-        return np.column_stack((1-y, y))
+        return np.column_stack((1 - y, y))
 
     def predict(self, X):
         """Return an array of classes for each input."""
