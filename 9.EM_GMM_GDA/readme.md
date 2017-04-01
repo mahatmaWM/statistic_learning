@@ -7,6 +7,6 @@ http://blog.csdn.net/chasdmeng/article/details/38709063 这是一个最简单的
 
 EM的算法思想见[NG的课件](http://cs229.stanford.edu/notes/cs229-notes8.pdf)还有[yida.xu老师的课件](http://www-staff.it.uts.edu.au/~ydxu/ml_course/)，两者讲解的方式有点差别，本质一样，NG对收敛迭代性的证明很巧。
 从NG的课件中可见：
-  E步：已知样本X以及猜测参数theta，求隐藏变量的分布，将其带入似然函数L能使其可导。
-  M步：求使似然函数L值最大的参数newtheta。
+  E步：已知样本X以及猜测参数theta，求隐藏变量z的分布，将其带入似然函数L的lowerbound。
+  M步：求使似然函数L的lowerbound值最大的参数newtheta。
 循环以上步骤知道收敛。
