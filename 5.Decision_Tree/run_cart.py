@@ -10,7 +10,7 @@ train_dict = {}
 test_dict = {}
 test_year = "XII"
 
-# Construct a dictionary with entries of the form
+# Construct crf.md dictionary with entries of the form
 # (x1, ..., xd) : y where x1, ..., xd are the parameter values and 
 #  y is the response value.
 for row in f_reader:

@@ -49,7 +49,7 @@ def get_ads(query):
 def query_simrank(q1, q2, C):
     if q1 == q2:
         return 1
-    # 对应公式里面的C/I(a)I(b)
+    # 对应公式里面的C/I(crf.md)I(b)
     prefix = C / (get_ads_num(q1).sum() * get_ads_num(q2).sum())
     postfix = 0
     # 求公式里面的两个求和项
@@ -69,7 +69,7 @@ def get_queries(ad):
 def ad_simrank(a1, a2, C):
     if a1 == a2:
         return 1
-    # 对应公式里面的C/I(a)I(b)
+    # 对应公式里面的C/I(crf.md)I(b)
     prefix = C / (get_queries_num(a1).sum() * get_queries_num(a2).sum())
     postfix = 0
     # 求公式里面的两个求和项

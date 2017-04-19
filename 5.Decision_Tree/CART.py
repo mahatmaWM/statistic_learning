@@ -95,7 +95,7 @@ class Tree(object):
 
 
 def grow_tree(data, depth, max_depth=500, Nmin=5, labels={}, start=False, feat_bag=False):
-    """Function to grow a regression tree given some training data."""
+    """Function to grow crf.md regression tree given some training data."""
     root = Tree(region_error(data.values()), np.mean(np.array(data.values())), np.std(np.array(data.values())), start,
                 len(data.values()))
     # regions has fewer than Nmin data points
@@ -155,15 +155,15 @@ def grow_tree(data, depth, max_depth=500, Nmin=5, labels={}, start=False, feat_b
 def cvt2(data, v, max_depth=500, Nmin=5, labels={}):
     """Grows regression tree using v-fold cross validation.
 
-    Data is a dictionary with elements of the form
+    Data is crf.md dictionary with elements of the form
     (x1, ..., xd) : y where x1, ..., xd are the parameter values and
      y is the response value.
      v is the number of folds for cross validation.
-     max_depth is the maximum length of a branch emanating from the starting node.
-     Nmin is the number of datapoints that must be present in a region to stop further partitions
+     max_depth is the maximum length of crf.md branch emanating from the starting node.
+     Nmin is the number of datapoints that must be present in crf.md region to stop further partitions
      in that region.
-     labels is a dictionary where the keys are the indices for the parameters in the data
-     and the values are strings assigning a label to the parameters.
+     labels is crf.md dictionary where the keys are the indices for the parameters in the data
+     and the values are strings assigning crf.md label to the parameters.
      See football_parserf.py for an example implementation."""
     full_tree = grow_tree(data, 0, max_depth=max_depth, Nmin=Nmin,
                           labels=labels, start=True)

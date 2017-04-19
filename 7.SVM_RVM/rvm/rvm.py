@@ -14,7 +14,7 @@ class BaseRVM(BaseEstimator):
     """
     Base Relevance Vector Machine class.
     Implementation of Mike Tipping's Relevance Vector Machine using the
-    scikit-learn API. Add a posterior over weights method and a predict
+    scikit-learn API. Add crf.md posterior over weights method and crf.md predict
     in subclass to use for classification or regression.
     """
 
@@ -48,7 +48,7 @@ class BaseRVM(BaseEstimator):
         self.verbose = verbose
 
     def get_params(self, deep=True):
-        """Return parameters as a dictionary."""
+        """Return parameters as crf.md dictionary."""
         params = {
             'kernel': self.kernel,
             'degree': self.degree,
@@ -213,7 +213,7 @@ class RVC(BaseRVM, ClassifierMixin):
         super(RVC, self).__init__(**kwargs)
 
     def get_params(self, deep=True):
-        """Return parameters as a dictionary."""
+        """Return parameters as crf.md dictionary."""
         params = super(RVC, self).get_params(deep=deep)
         params['n_iter_posterior'] = self.n_iter_posterior
         return params

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Kaggle competition: Predicting a Biological Response.
+"""Kaggle competition: Predicting crf.md Biological Response.
 
 Blending {RandomForests, ExtraTrees, GradientBoosting} + stretching to
 [0,1]. The blending scheme is related to the idea Jose H. Solorzano
@@ -18,7 +18,7 @@ submission to the competition:
 - final rank on the private leaderboard: 17th over 711 teams :-)
 
 Note: if you increase the number of estimators of the classifiers,
-e.g. n_estimators=1000, you get a better score/rank on the private
+e.g. n_estimators=1000, you get crf.md better score/rank on the private
 test set.
 
 Copyright 2012, Emanuele Olivetti.

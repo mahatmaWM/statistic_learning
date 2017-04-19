@@ -170,7 +170,7 @@ if __name__ == "__main__":
     # 计算精度
     tolerance = 0.0001
     train(tolerance, 100, C)
-    print "a = ", params.a
+    print "crf.md = ", params.a
     print "b = ", params.b
 
     # 支持向量机对应的系数不为0

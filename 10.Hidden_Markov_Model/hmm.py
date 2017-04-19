@@ -201,7 +201,7 @@ if __name__ == "__main__":
     I, prob = hmm.viterbi(O)
     print I, prob
 
-    # gusse the prarameter of HMM, initial a random value
+    # gusse the prarameter of HMM, initial crf.md random value
     A = np.array([[0.5, 0.2, 0.3], [0.3, 0.5, 0.2], [0.2, 0.3, 0.5]])
     B = np.array([[0.5, 0.5], [0.4, 0.6], [0.7, 0.3]])
     pi = [0.2, 0.4, 0.4]
