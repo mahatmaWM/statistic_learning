@@ -1,6 +1,26 @@
-# -*-coding:UTF-8-*-
+# coding=utf-8
+
 import numpy as np
 import copy as cp
+
+'''
+Q是所有可能的状态的集合
+V是所有可能的观测的集合
+N是可能的状态数
+M是可能的观测数
+I是长度为T的状态序列，O是对应的观测序列
+A是状态转移矩阵，N*N
+B是观测概率矩阵，N*M
+pi是厨师状态概率向量
+
+隐马尔科夫模型lambda=(A,B,pi)
+
+三个问题：
+1、概率计算问题。给定模型lambda和观测序列O，计算概率p(O|lambda)
+2、学习问题。给定观测序列O，估计模型lambda=(A,B,pi)参数，是的在该模型lambda下，观察序列O出现的概率最大
+3、预测（解码）问题。已知模型lambda和观测序列O，求在该观测序列O的条件下p(I|O)概率最大的状态序列。
+
+'''
 
 
 class HMM:
@@ -8,7 +28,7 @@ class HMM:
         self.A = np.array(Ann)
         self.B = np.array(Bnm)
         self.pi = np.array(pi1n)
-        self.N = self.A.shape[0]
+        self.N = self.A.shape[1]
         self.M = self.B.shape[1]
 
     def printhmm(self):
@@ -19,40 +39,39 @@ class HMM:
         print "hmm.pi", self.pi
         print "=================================================="
 
-    # 函数名称：Forward
-    # 功能：前向算法估计参数
-    # 参数:
-    # phmm:指向HMM的指针
-    # T:观察值序列的长度
-    # O:观察值序列
-    # alpha:运算中用到的临时数组
-    # pprob:返回值,所要求的概率
     def Forward(self, T, O, alpha):
-        # 1.Initialization 初始化
+        '''
+        前向算法估计观测序列的概率，算法10.2
+        :param T: 观察值序列的长度
+        :param O: 观察值序列
+        :param alpha: 运算中用到的临时数组
+        :return: 返回值,所要求的概率
+        '''
+        # 1.初始化
         for i in range(self.N):
             alpha[0, i] = self.pi[i] * self.B[i, O[0]]
 
-        # 2.Induction 递归
+        # 2.递推
         for t in range(T - 1):
             for j in range(self.N):
                 sum = 0.0
                 for i in range(self.N):
                     sum += alpha[t, i] * self.A[i, j]
                 alpha[t + 1, j] = sum * self.B[j, O[t + 1]]
-        # 3.Termination 终止
+        # 3.终止
         prob = 0
         for i in range(self.N):
             prob += alpha[T - 1, i]
         return prob
 
-    # 函数名称：Backward
-    # 功能:后向算法估计参数
-    # 参数:phmm:指向HMM的指针
-    # T:观察值序列的长度
-    # O:观察值序列
-    # beta:运算中用到的临时数组
-    # pprob:返回值，所要求的概率
     def Backward(self, T, O, beta):
+        '''
+        后向算法
+        :param T: 观察值序列的长度，算法10.3
+        :param O: 观察值序列
+        :param beta: 运算中用到的临时数组
+        :return: 返回值，所要求的概率
+        '''
         # 1. Intialization
         for i in range(self.N):
             beta[T - 1, i] = 1.0
@@ -70,10 +89,12 @@ class HMM:
             pprob += self.pi[i] * self.B[i, O[0]] * beta[0, i]
         return pprob
 
-    # Viterbi算法
-    # 输入：A，B，pi,O
-    # 输出P(O|lambda)最大时Poptimal的路径I
     def viterbi(self, O):
+        '''
+        预测解码的viterbi算法，对应185页算法10.5
+        :param O: 观察序列
+        :return: P(O|lambda)最大时的最优状态路径I
+        '''
         T = len(O)
         # 初始化
         delta = np.zeros((T, self.N), np.float)
@@ -82,21 +103,32 @@ class HMM:
         for i in range(self.N):
             delta[0, i] = self.pi[i] * self.B[i, O[0]]
             phi[0, i] = 0
+
         # 递推
+        # np.argmax()最大元素的索引
         for t in range(1, T):
             for i in range(self.N):
                 delta[t, i] = self.B[i, O[t]] * np.array([delta[t - 1, j] * self.A[j, i] for j in range(self.N)]).max()
                 phi[t, i] = np.array([delta[t - 1, j] * self.A[j, i] for j in range(self.N)]).argmax()
+
         # 终结
         prob = delta[T - 1, :].max()
         I[T - 1] = delta[T - 1, :].argmax()
+
         # 状态序列求取
         for t in range(T - 2, -1, -1):
             I[t] = phi[t + 1, int(I[t + 1])]
         return I, prob
 
-    # 给定模型lambda和观察O，t时刻处于状态q_i的概率，计算gamma
     def ComputeGamma(self, T, alpha, beta, gamma):
+        '''
+        对应公式10.24
+        :param T:
+        :param alpha:
+        :param beta:
+        :param gamma:
+        :return:
+        '''
         for t in range(T):
             denominator = 0.0
             for j in range(self.N):
@@ -105,8 +137,16 @@ class HMM:
             for i in range(self.N):
                 gamma[t, i] = gamma[t, i] / denominator
 
-    # 给定模型lambda和观察O，t时刻处于q_i的状态，t+1时刻处于q_j的状态的概率，计算sai(i,j)
     def ComputeXi(self, T, O, alpha, beta, xi):
+        '''
+        对应公式10.26
+        :param T:
+        :param O:
+        :param alpha:
+        :param beta:
+        :param xi:
+        :return:
+        '''
         for t in range(T - 1):
             sum = 0.0
             for i in range(self.N):
@@ -117,10 +157,18 @@ class HMM:
                 for j in range(self.N):
                     xi[t, i, j] /= sum
 
-    # Baum-Welch算法
-    # 输入S个长度为T的观察序列O
-    # 初始模型：HMM={A,B,pi,N,M}
     def BaumWelch(self, S, T, O, alpha, beta, gamma, iterate=5000):
+        '''
+        输入S个长度为T的观察序列O
+        :param S:
+        :param T:
+        :param O:
+        :param alpha:
+        :param beta:
+        :param gamma:
+        :param iterate:
+        :return: 初始模型：HMM={A,B,pi,N,M}
+        '''
         DELTA = 0.000000000000001
         round = 0
         oldpi = cp.deepcopy(self.pi)
@@ -171,8 +219,10 @@ class HMM:
                 pi[i] = denominatorA[i] = denominatorB[i] = 0.0
 
             # 检查参数是否到达阈值条件
-            temp = np.max(np.max(np.max(abs(self.pi - oldpi)), np.max(abs(self.A - oldA))), np.max(abs(self.B - oldB)))
-            print temp
+            diff_pi_max = np.max(abs(self.pi - oldpi))
+            diff_A_max = np.max(abs(self.A - oldA))
+            diff_B_max = np.max(abs(self.B - oldB))
+            temp = np.max([diff_A_max, diff_B_max, diff_pi_max])
             if temp <= DELTA:
                 print "num iteration ", round
                 break
@@ -184,11 +234,16 @@ class HMM:
 
 if __name__ == "__main__":
     # page 177例子
-    A = np.array([[0.5, 0.2, 0.3], [0.3, 0.5, 0.2], [0.2, 0.3, 0.5]])
-    B = np.array([[0.5, 0.5], [0.4, 0.6], [0.7, 0.3]])
+    A = np.array([[0.5, 0.2, 0.3],
+                  [0.3, 0.5, 0.2],
+                  [0.2, 0.3, 0.5]])
+    B = np.array([[0.5, 0.5],
+                  [0.4, 0.6],
+                  [0.7, 0.3]])
     pi = [0.2, 0.4, 0.4]
     hmm = HMM(A, B, pi)
-    O = np.array([0, 1, 0])  # 看B的行向量有几种状态
+
+    O = np.array([0, 1, 0])
     T = 3
     alpha = np.zeros((T, hmm.N), np.float)
     prob = hmm.Forward(T, O, alpha)
@@ -201,9 +256,13 @@ if __name__ == "__main__":
     I, prob = hmm.viterbi(O)
     print I, prob
 
-    # gusse the prarameter of HMM, initial crf.md random value
-    A = np.array([[0.5, 0.2, 0.3], [0.3, 0.5, 0.2], [0.2, 0.3, 0.5]])
-    B = np.array([[0.5, 0.5], [0.4, 0.6], [0.7, 0.3]])
+    # gusse the prarameter of HMM
+    A = np.array([[0.5, 0.2, 0.3],
+                  [0.3, 0.5, 0.2],
+                  [0.2, 0.3, 0.5]])
+    B = np.array([[0.5, 0.5],
+                  [0.4, 0.6],
+                  [0.7, 0.3]])
     pi = [0.2, 0.4, 0.4]
     hmm = HMM(A, B, pi)
 
